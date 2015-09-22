@@ -1,10 +1,30 @@
-$("#food").click(getPlaces);
-$("#bars").click(getPlaces);
-
 var currPos = null;
 var map = null;
 var infoWindow = null;
 var currMarkers = [];
+
+var data = ["Gas Stations", "Food", "Restaurants", "Electronics", "Bars", "ATMs", "Doctors"];
+$(".autocomplete").autocomplete({
+    source: data,
+    select: function(event, ui) {
+        //This function handles the case where the user clicks a value from the drop down
+        $(event.target).val(ui.item.value);
+        getPlaces($(this).val());
+        return false;
+    }
+});
+$("#user-in").on('input', function() {
+    //Will be handling the case where the user does not use autocomplete
+    var currValue = $(this).val().toUpperCase();
+    for (var i = 0; i < data.length; i++) {
+        if (currValue === data[i].toUpperCase()) {
+            console.log(currValue);
+            clearMap();
+            getPlaces(data[i]);
+            break;
+        }
+    }
+});
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
@@ -43,24 +63,36 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
         'Error: Your browser doesn\'t support geolocation.');
 }
 
-function getPlaces(event) {
-    if ($(this).attr("id") === "food") {
-        //Before we add food to the map, we should remove anything currently on the map
-        clearMap();
+function getPlaces(value) {
+    var place_type = null;
+    var is_food = false; //If this is true, we will look for 'food' tags and 'restaurant', 'cafe' tags
+    console.log(value);
+    if (value === "Food") {
+        place_type = 'food';
+        is_food = true;
+    }
+    else if (value === "Bars") place_type = 'bar';
+    else if (value === "Gas Stations") place_type = 'gas_station';
+    else if (value === "Electronics") place_type = 'electronics_store';
+    else if (value === "Restaurants") place_type = 'restaurant';
+    else if (value === "ATMs") place_type = 'atm';
+    else if (value === "Doctors") place_type = 'doctor';
+    //Before we add our places to the map, we should remove anything currently on the map
+    clearMap();
+    if (is_food) {
         var service = new google.maps.places.PlacesService(map);
             service.nearbySearch({
             location: currPos,
             radius: 2000, //2km search radius
-            types: ['food']
+            types: [place_type, 'restaurant', 'cafe']
         }, callback);
     }
-    else if ($(this).attr("id") === "bars") {
-        clearMap();
+    else {
         var service = new google.maps.places.PlacesService(map);
             service.nearbySearch({
             location: currPos,
             radius: 2000, //2km search radius
-            types: ['bar']
+            types: [place_type]
         }, callback);
     }
 }
