@@ -1,28 +1,31 @@
 $("#food").click(getPlaces);
 $("#bars").click(getPlaces);
 
-var testing = null;
+var currPos = null;
+var map = null;
+var infoWindow = null;
+var currMarkers = [];
 
 function initMap() {
-    var map = new google.maps.Map(document.getElementById('map'), {
+    map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 30.2500, lng: 97.7500},
-        zoom: 12
+        zoom: 14
     });
-    var infoWindow = new google.maps.InfoWindow({map: map});
+    infoWindow = new google.maps.InfoWindow({map: map});
 
     // Try HTML5 geolocation.
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
             var pos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-        };
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
             
-        testing = pos;
+            currPos = pos;
 
-        infoWindow.setPosition(pos);
-        infoWindow.setContent('Location found.');
-        map.setCenter(pos);
+            infoWindow.setPosition(pos);
+            infoWindow.setContent('Current Location');
+            map.setCenter(pos);
         }, function() {
             handleLocationError(true, infoWindow, map.getCenter());
         });
@@ -42,34 +45,53 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 
 function getPlaces(event) {
     if ($(this).attr("id") === "food") {
+        //Before we add food to the map, we should remove anything currently on the map
+        clearMap();
         var service = new google.maps.places.PlacesService(map);
-          service.nearbySearch({
-            location: testing,
+            service.nearbySearch({
+            location: currPos,
             radius: 2000, //2km search radius
             types: ['food']
-          }, callback);
+        }, callback);
     }
     else if ($(this).attr("id") === "bars") {
+        clearMap();
+        var service = new google.maps.places.PlacesService(map);
+            service.nearbySearch({
+            location: currPos,
+            radius: 2000, //2km search radius
+            types: ['bar']
+        }, callback);
     }
 }
 
 function callback(results, status) {
-  if (status === google.maps.places.PlacesServiceStatus.OK) {
-    for (var i = 0; i < results.length; i++) {
-      createMarker(results[i]);
+    if (status === google.maps.places.PlacesServiceStatus.OK) {
+        for (var i = 0; i < results.length; i++) {
+            createMarker(results[i]);
+        }
     }
-  }
 }
 
 function createMarker(place) {
-  var placeLoc = place.geometry.location;
-  var marker = new google.maps.Marker({
-    setMap: map,
-    position: place.geometry.location
-  });
+    var placeLoc = place.geometry.location;
+    var marker = new google.maps.Marker({
+        map: map,
+        position: place.geometry.location
+    });
 
-  google.maps.event.addListener(marker, 'click', function() {
-    infowindow.setContent(place.name);
-    infowindow.open(map, this);
-  });
+    currMarkers.push(marker);
+    google.maps.event.addListener(marker, 'click', function() {
+        infoWindow.setContent(place.name);
+        infoWindow.open(map, this);
+    });
+}
+
+function clearMap() {
+    //This function will clear all of the markers from the map and then empty the currMarkers array
+    for (var i = 0; i < currMarkers.length; i++) {
+        currMarkers[i].setMap(null); //This will remove currMarkers[i] from the map
+    }
+    //Finally, let's set our currMarkers to a new, empty array
+    currMarkers = [];
 }

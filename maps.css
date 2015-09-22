@@ -1,0 +1,57 @@
+html, body { 
+    height: 100%; 
+    margin: 0; 
+    padding: 0; 
+}
+
+#map { 
+    height: 100%; 
+}
+/* The margins/width in pixels allows us to center the absolute positioned div inside the body */
+#section1 { 
+    position: absolute; 
+    width: 250px; 
+    top: 2%; 
+    left: 50%; 
+    margin-left: -125px; 
+    z-index: 5; 
+    background-color: #fff; 
+    padding: 5px; 
+    border: 1px solid #aaa;
+    font-family: 'Roboto','sans-serif' !important;
+}
+
+/* Section Pills */
+
+.ul-wrapper {
+    text-align: center;
+}
+
+ul {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    zoom: 1;
+    font-size: 0.75em;
+}
+
+ul.nav-pills {
+    display: inline-block;
+}
+
+ul li {
+    float: left;
+    display: inline;
+}
+
+ul li a {
+    color: black;
+    border: 1px solid black;
+    padding: 3px 5px !important; /* This should allow our elements to be a bit more concise */
+}
+
+ul li a:hover {
+    /* Changes the hover color of the pills */
+    color: white;
+    background-color: black !important;
+}
