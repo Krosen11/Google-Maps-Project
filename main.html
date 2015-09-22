@@ -1,20 +1,37 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <style type="text/css">
-        html, body { height: 100%; margin: 0; padding: 0; }
-        #map { height: 100%; }
-    </style>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <!-- Latest compiled JavaScript -->
-    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  </head>
-  <body>
-      <div id="map"></div>
-      <script src="map.js"></script>
-      <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDtsj1Oxu1SaExP3rA6rcyYhQobiqql3iA&callback=initMap">
-      </script>
-  </body>
+    <head>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+        <style type="text/css">
+            html, body { height: 100%; margin: 0; padding: 0; }
+            #map { height: 100%; }
+        </style>
+        
+        <!-- jQuery library -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+        
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        
+    </head>
+    <body>
+        <div id="section1">
+            <h1 id="select-header">What Are You Looking For?</h1>
+            <div class="ul-wrapper">
+                <ul class="nav nav-pills">
+                    <li><a id="food" href="#">Food</a></li>
+                    <li><a id="bars" href="#">Bars</a></li>
+                </ul>
+            </div>
+        </div>
+        <div id="map"></div>
+        <script src="map.js"></script>
+        <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDtsj1Oxu1SaExP3rA6rcyYhQobiqql3iA&signed_in=true&libraries=places&callback=initMap">
+        </script>
+    </body>
 </html>
