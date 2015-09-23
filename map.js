@@ -33,6 +33,8 @@ $("#popover").popover({
     content: "This is a test"
 });
 
+$("#search-options-btn").click(toggleOptions);
+
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 30.2500, lng: 97.7500},
@@ -147,4 +149,39 @@ function clearMap() {
     }
     //Finally, let's set our currMarkers to a new, empty array
     currMarkers = [];
+}
+
+function toggleOptions(event) {
+    if ($("#search-options").length === 0) {
+        //This means that the element does not exist yet, so we will create it
+        jQuery("<div/>", {
+            id: 'search-options'
+        }).css("display", "none").insertAfter("#search-options-btn");
+        
+        //NOTE: We are setting the display to none so that the text boxes do not show up just yet.
+        jQuery("<div/>", {
+            id: 'location-div',
+            text: 'Location: '
+        }).appendTo("#search-options");
+        
+        jQuery("<div/>", {
+            id: 'range-div',
+            text: 'Range (km): '
+        }).appendTo("#search-options");
+        
+        jQuery("<input/>", {
+            id: 'location',
+            type: 'text',
+            name: 'input2'
+        }).appendTo("#location-div");
+        
+        jQuery("<input/>", {
+            id: 'range',
+            type: 'text',
+            name: 'input3'
+        }).appendTo("#range-div");
+    }
+    
+    //Now we know that this element exists, so we must do a toggle
+    $("#search-options").toggle("slow");
 }
