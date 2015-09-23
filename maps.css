@@ -45,3 +45,13 @@ html, body {
 #search input {
     float: right;
 }
+
+#more-btn {
+    position: absolute;
+    top: 15%;
+    left: 85%;
+    z-index: 5;
+    background-color: #fff;
+    padding: 5px;
+    border: 1px solid #aaa;
+}

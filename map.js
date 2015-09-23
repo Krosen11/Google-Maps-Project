@@ -4,6 +4,8 @@ var infoWindow = null;
 var geocoder = null;
 var currMarkers = [];
 var range = 2000;
+var current_search = null;
+var places_active = false;
 
 var data = ["Gas Stations", "Food", "Restaurants", "Electronics", "Bars", "ATMs", "Doctors"];
 $(".autocomplete").autocomplete({
@@ -94,36 +96,63 @@ function getPlaces(value) {
         case "Doctors":
             place_type = 'doctor';
             break;
+        default:
+            alert("Invalid search query. Please enter one of the valid places to search for. To see these options, please select the \"Possible Searches\" box.");
+            return;
     }
     //Before we add our places to the map, we should remove anything currently on the map
     clearMap();
+    places_active = true;
+    current_search = value;
     if (is_food) {
         var service = new google.maps.places.PlacesService(map);
             service.nearbySearch({
             location: currPos,
-            radius: range, //2km search radius
+            radius: range,
             types: [place_type, 'restaurant', 'cafe']
-        }, callback);
+        }, addMarkersToMap);
     }
     else {
         var service = new google.maps.places.PlacesService(map);
             service.nearbySearch({
             location: currPos,
-            radius: range, //2km search radius
+            radius: range,
             types: [place_type]
-        }, callback);
+        }, addMarkersToMap);
     }
 }
 
-function callback(results, status) {
+function addMarkersToMap(results, status, pagination) {
+    var bounds = new google.maps.LatLngBounds();
     if (status === google.maps.places.PlacesServiceStatus.OK) {
         for (var i = 0; i < results.length; i++) {
-            createMarker(results[i]);
+            createMarker(results[i], bounds);
         }
     }
+    if (pagination.hasNextPage) {
+        if (!$("#more-btn").length) {
+            jQuery("<button/>", {
+                id: 'more-btn',
+                text: 'Display More Results'
+            }).css("display", "none").appendTo("body");
+        }
+
+        $("#more-btn").disabled = false;
+        
+        $("#more-btn").click(function() {
+            $("#more-btn").disabled = true;
+            pagination.nextPage();
+        });
+        
+        $("#more-btn").show("fast");
+    }
+    else {
+        $("#more-btn").hide();
+    }
+    map.fitBounds(bounds); //This will fit all our places on the map at once
 }
 
-function createMarker(place) {
+function createMarker(place, bounds) {
     var placeLoc = place.geometry.location;
     var marker = new google.maps.Marker({
         map: map,
@@ -135,6 +164,8 @@ function createMarker(place) {
         infoWindow.setContent(place.name);
         infoWindow.open(map, this);
     });
+    
+    bounds.extend(placeLoc);
 }
 
 function clearMap() {
@@ -144,6 +175,8 @@ function clearMap() {
     }
     //Finally, let's set our currMarkers to a new, empty array
     currMarkers = [];
+    places_active = false;
+    if ($("#more-btn").length) $("#more-btn").hide(); //Hide this button if it existed
 }
 
 function toggleOptions(event) {
@@ -161,7 +194,7 @@ function toggleOptions(event) {
         
         jQuery("<div/>", {
             id: 'range-div',
-            text: 'Range (km): '
+            text: 'Range (m): '
         }).appendTo("#search-options");
         
         jQuery("<input/>", {
@@ -212,6 +245,9 @@ function changeParams(element, type) {
         
         //Since there really is no visual to tell users that this has been updated, let's add it here.
         //NOTE: Should have a variable that has the last Places search term, as well as a variable saying whether to check it or not
+        if (places_active) {
+            getPlaces(current_search);
+        }
     }
     else {
         geocodeAddress(text);
@@ -230,6 +266,9 @@ function geocodeAddress(address) {
             currPos = marker.position; //Ensures that subsequent Places searches are based on this location
             infoWindow.setPosition(results[0].geometry.location);
             infoWindow.setContent('Specified Location');
+            
+            //Before we move, let's clear all the markers from the old location
+            clearMap();
             currMarkers.push[marker]; //We want to remove this as soon as we do a places search
         } else {
             alert('Geocode was not successful for the following reason: ' + status);
