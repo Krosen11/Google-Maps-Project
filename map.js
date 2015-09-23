@@ -2,6 +2,7 @@ var currPos = null;
 var map = null;
 var infoWindow = null;
 var geocoder = null;
+var range_circle = null;
 var currMarkers = [];
 var range = 2000;
 var current_search = null;
@@ -53,6 +54,15 @@ function initMap() {
             infoWindow.setPosition(pos);
             infoWindow.setContent('Current Location');
             map.setCenter(pos);
+            range_circle = new google.maps.Circle({
+                strokeColor: '#FF0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillOpacity: 0,
+                map: map,
+                center: pos,
+                radius: range
+            });
         }, function() {
             handleLocationError(true, infoWindow, map.getCenter());
         });
@@ -244,6 +254,7 @@ function changeParams(element, type) {
         }
         
         //Since there really is no visual to tell users that this has been updated, let's add it here.
+        range_circle.setRadius(range);
         if (places_active) {
             getPlaces(current_search);
         }
@@ -268,6 +279,7 @@ function geocodeAddress(address) {
             
             //Before we move, let's clear all the markers from the old location
             clearMap();
+            range_circle.setCenter(currPos);
             currMarkers.push[marker]; //We want to remove this as soon as we do a places search
         } else {
             alert('Geocode was not successful for the following reason: ' + status);
