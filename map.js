@@ -244,7 +244,6 @@ function changeParams(element, type) {
         }
         
         //Since there really is no visual to tell users that this has been updated, let's add it here.
-        //NOTE: Should have a variable that has the last Places search term, as well as a variable saying whether to check it or not
         if (places_active) {
             getPlaces(current_search);
         }
