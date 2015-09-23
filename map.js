@@ -26,6 +26,13 @@ $("#user-in").on('input', function() {
     }
 });
 
+$("#popover").popover({
+    placement: 'bottom',
+    trigger: 'hover',
+    title: "Testing",
+    content: "This is a test"
+});
+
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 30.2500, lng: 97.7500},
@@ -67,16 +74,30 @@ function getPlaces(value) {
     var place_type = null;
     var is_food = false; //If this is true, we will look for 'food' tags and 'restaurant', 'cafe' tags
     console.log(value);
-    if (value === "Food") {
-        place_type = 'food';
-        is_food = true;
+    switch (value) {
+        case "Food":
+            place_type = 'food';
+            is_food = true;
+            break;
+        case "Bars":
+            place_type = 'bar';
+            break;
+        case "Gas Stations":
+            place_type = 'gas_station';
+            break;
+        case "Electronics":
+            place_type = 'electronics_store';
+            break;
+        case "Restaurants":
+            place_type = 'restaurant';
+            break;
+        case "ATMs":
+            place_type = 'atm';
+            break;
+        case "Doctors":
+            place_type = 'doctor';
+            break;
     }
-    else if (value === "Bars") place_type = 'bar';
-    else if (value === "Gas Stations") place_type = 'gas_station';
-    else if (value === "Electronics") place_type = 'electronics_store';
-    else if (value === "Restaurants") place_type = 'restaurant';
-    else if (value === "ATMs") place_type = 'atm';
-    else if (value === "Doctors") place_type = 'doctor';
     //Before we add our places to the map, we should remove anything currently on the map
     clearMap();
     if (is_food) {

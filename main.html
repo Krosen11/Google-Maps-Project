@@ -16,24 +16,28 @@
         
     </head>
     <body>
-        <!--
-        <div id="section1">
-            <h4 id="select-header">What Are You Looking For?</h1>
-            <div class="ul-wrapper">
-                <ul class="nav nav-pills">
-                    <li><a id="food" href="#">Food</a></li>
-                    <li><a id="bars" href="#">Bars</a></li>
-                    <li><a id="gas" href="#">Gas Stations</a></li>
-                    <li><a id="electronics" href="#">Electronics Store</a></li>
-                </ul>
-            </div>
-        </div>
-        -->
-        <div id="section1">
+        <div id="places">
             <h4 id="select-header">What Are You Looking For?</h1>
             <input id="user-in" type="text" class="autocomplete" name="input1"/>
+            <div class="btn-group">
+                <a id="options" class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                    Search Options
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a id="food" href="#">Food</a></li>
+                    <li><a id="bars" href="#">Bars</a></li>
+                </ul>
+                <button id="popover">Popover</button>
+            </div>
         </div>
+        <button id="search-options" type="button">
+            Search Options
+            <span class="caret caret-reversed"></span>
+        </button>
         <div id="map"></div>
+        <script src="http://w3resource.com/twitter-bootstrap/twitter-bootstrap-v2/js/bootstrap-tooltip.js"></script>
+        <script src="http://w3resource.com/twitter-bootstrap/twitter-bootstrap-v2/js/bootstrap-popover.js"></script>
         <script src="map.js"></script>
         <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDtsj1Oxu1SaExP3rA6rcyYhQobiqql3iA&signed_in=true&libraries=places&callback=initMap">

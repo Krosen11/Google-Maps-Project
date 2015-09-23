@@ -8,12 +8,11 @@ html, body {
     height: 100%; 
 }
 /* The margins/width in pixels allows us to center the absolute positioned div inside the body */
-#section1 { 
+#places { 
     position: absolute; 
     width: 250px; 
-    top: 2%; 
-    left: 50%; 
-    margin-left: -125px; 
+    top: 10%; 
+    left: 1%;
     z-index: 5; 
     background-color: #fff; 
     padding: 5px; 
@@ -21,37 +20,26 @@ html, body {
     font-family: 'Roboto','sans-serif' !important;
 }
 
-/* Section Pills */
-
-.ul-wrapper {
+#options {
+    position: relative;
     text-align: center;
-}
-
-ul {
-    display: inline-block;
-    margin: 0;
-    padding: 0;
-    zoom: 1;
-    font-size: 0.75em;
-}
-
-ul.nav-pills {
-    display: inline-block;
-}
-
-ul li {
-    float: left;
-    display: inline;
-}
-
-ul li a {
+    width: 100%;
     color: black;
-    border: 1px solid black;
-    padding: 3px 5px !important; /* This should allow our elements to be a bit more concise */
 }
 
-ul li a:hover {
-    /* Changes the hover color of the pills */
-    color: white;
-    background-color: black !important;
+#search-options {
+    position: absolute;
+    top: 85%;
+    left: 1%;
+    z-index: 5;
+    background-color: #fff;
+    padding: 5px; 
+    border: 1px solid #aaa;
+    font-family: 'Roboto','sans-serif' !important;
+}
+
+/* This will take care of our upside down caret */
+.caret.caret-reversed {
+    border-top-width: 0;
+    border-bottom: 4px solid #000000;
 }
