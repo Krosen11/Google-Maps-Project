@@ -1,3 +1,4 @@
+//Map variables
 var currPos = null;
 var map = null;
 var infoWindow = null;
@@ -5,9 +6,12 @@ var geocoder = null;
 var range_circle = null;
 var currMarkers = [];
 var range = 2000;
+
+//Places variables
 var current_search = null;
 var places_active = false;
 
+//Code to run upon initialization
 var data = ["Gas Stations", "Food", "Restaurants", "Electronics", "Bars", "ATMs", "Doctors"];
 $(".autocomplete").autocomplete({
     source: data,
@@ -30,8 +34,17 @@ $("#user-in").on('input', function() {
     }
 });
 
+//Set onclick listeners
 $("#search-options-btn").click(toggleOptions);
+$("#atm").click(getPlacesDropdown);
+$("#bars").click(getPlacesDropdown);
+$("#doctors").click(getPlacesDropdown);
+$("#electronics").click(getPlacesDropdown);
+$("#food").click(getPlacesDropdown);
+$("#gas").click(getPlacesDropdown);
+$("#restaurants").click(getPlacesDropdown);
 
+//This function is the callback function from the asynch Maps API request. Initializes the map to the user's location, if possible
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 30.2500, lng: 97.7500},
@@ -41,7 +54,7 @@ function initMap() {
     
     geocoder = new google.maps.Geocoder();
 
-    // Try HTML5 geolocation.
+    // Attempt to get the user's current location
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
             var pos = {
@@ -51,6 +64,7 @@ function initMap() {
             
             currPos = pos;
 
+            //Set some of our variables
             infoWindow.setPosition(pos);
             infoWindow.setContent('Current Location');
             map.setCenter(pos);
@@ -73,6 +87,7 @@ function initMap() {
     }
 }
 
+//This function handles errors in locating the user
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
     infoWindow.setPosition(pos);
     infoWindow.setContent(browserHasGeolocation ?
@@ -80,6 +95,12 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
         'Error: Your browser doesn\'t support geolocation.');
 }
 
+//This function gets called whenever the user clicks one of the "Possible Searches" dropdowns
+function getPlacesDropdown(event) {
+    getPlaces($(this).text());
+}
+
+//This function initializes all the Place markers on the map based upon the entered value
 function getPlaces(value) {
     var place_type = null;
     var is_food = false; //If this is true, we will look for 'food' tags and 'restaurant', 'cafe' tags
@@ -132,6 +153,7 @@ function getPlaces(value) {
     }
 }
 
+//This function will add the markers we found in our Places search to our map
 function addMarkersToMap(results, status, pagination) {
     var bounds = new google.maps.LatLngBounds();
     if (status === google.maps.places.PlacesServiceStatus.OK) {
@@ -139,6 +161,8 @@ function addMarkersToMap(results, status, pagination) {
             createMarker(results[i], bounds);
         }
     }
+    /*The map can only show 20 places at a time. If there are more results, we want to have a "Display More Results"
+    button so that the user can see as many results as possible*/
     if (pagination.hasNextPage) {
         if (!$("#more-btn").length) {
             jQuery("<button/>", {
@@ -162,6 +186,7 @@ function addMarkersToMap(results, status, pagination) {
     map.fitBounds(bounds); //This will fit all our places on the map at once
 }
 
+//This function actually creates an individual marker and places it on the map.
 function createMarker(place, bounds) {
     var placeLoc = place.geometry.location;
     var marker = new google.maps.Marker({
@@ -178,8 +203,8 @@ function createMarker(place, bounds) {
     bounds.extend(placeLoc);
 }
 
+//This function will clear all of the markers from the map and then empty the currMarkers array
 function clearMap() {
-    //This function will clear all of the markers from the map and then empty the currMarkers array
     for (var i = 0; i < currMarkers.length; i++) {
         currMarkers[i].setMap(null); //This will remove currMarkers[i] from the map
     }
@@ -189,9 +214,10 @@ function clearMap() {
     if ($("#more-btn").length) $("#more-btn").hide(); //Hide this button if it existed
 }
 
+//This function handles the "Search Options" dropdown, toggling the options when the user presses it.
 function toggleOptions(event) {
     if ($("#search-options").length === 0) {
-        //This means that the element does not exist yet, so we will create it
+        //This means that the elements do not exist yet, so we will create them
         jQuery("<div/>", {
             id: 'search-options'
         }).css("display", "none").insertAfter("#search-options-btn");
@@ -204,7 +230,7 @@ function toggleOptions(event) {
         
         jQuery("<div/>", {
             id: 'range-div',
-            text: 'Range (m): '
+            text: 'Range (km): '
         }).appendTo("#search-options");
         
         jQuery("<input/>", {
@@ -242,17 +268,19 @@ function toggleOptions(event) {
     $("#search-options").toggle("slow");
 }
 
+//This function is called when the user enters something into one of the Search Options fields
 function changeParams(element, type) {
     var text = $(element).val();
     if (type === "range") {
         //We first need to see if this is a valid number
-        range = ~~Number(text); //The '~~' will truncate any fractional pieces
+        range = Number(text);
         if (String(range) !== text || range < 0) {
             //This means we either have a non-integer value or a negative value, so reset range and alert user
             range = 2000;
             alert("Invalid range entered. Please enter a number greater than 0.");
         }
         
+        range = range * 1000; //Convert to meters
         //Since there really is no visual to tell users that this has been updated, let's add it here.
         range_circle.setRadius(range);
         if (places_active) {
@@ -264,6 +292,7 @@ function changeParams(element, type) {
     }
 }
 
+//This function brings the map to whatever location the user specified in the Location field
 function geocodeAddress(address) {
     geocoder.geocode({'address': address}, function(results, status) {
         if (status === google.maps.GeocoderStatus.OK) {
