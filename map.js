@@ -1,7 +1,9 @@
 var currPos = null;
 var map = null;
 var infoWindow = null;
+var geocoder = null;
 var currMarkers = [];
+var range = 2000;
 
 var data = ["Gas Stations", "Food", "Restaurants", "Electronics", "Bars", "ATMs", "Doctors"];
 $(".autocomplete").autocomplete({
@@ -18,19 +20,11 @@ $("#user-in").on('input', function() {
     var currValue = $(this).val().toUpperCase();
     for (var i = 0; i < data.length; i++) {
         if (currValue === data[i].toUpperCase()) {
-            console.log(currValue);
             clearMap();
             getPlaces(data[i]);
             break;
         }
     }
-});
-
-$("#popover").popover({
-    placement: 'bottom',
-    trigger: 'hover',
-    title: "Testing",
-    content: "This is a test"
 });
 
 $("#search-options-btn").click(toggleOptions);
@@ -41,6 +35,8 @@ function initMap() {
         zoom: 14
     });
     infoWindow = new google.maps.InfoWindow({map: map});
+    
+    geocoder = new google.maps.Geocoder();
 
     // Try HTML5 geolocation.
     if (navigator.geolocation) {
@@ -75,7 +71,6 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
 function getPlaces(value) {
     var place_type = null;
     var is_food = false; //If this is true, we will look for 'food' tags and 'restaurant', 'cafe' tags
-    console.log(value);
     switch (value) {
         case "Food":
             place_type = 'food';
@@ -106,7 +101,7 @@ function getPlaces(value) {
         var service = new google.maps.places.PlacesService(map);
             service.nearbySearch({
             location: currPos,
-            radius: 2000, //2km search radius
+            radius: range, //2km search radius
             types: [place_type, 'restaurant', 'cafe']
         }, callback);
     }
@@ -114,7 +109,7 @@ function getPlaces(value) {
         var service = new google.maps.places.PlacesService(map);
             service.nearbySearch({
             location: currPos,
-            radius: 2000, //2km search radius
+            radius: range, //2km search radius
             types: [place_type]
         }, callback);
     }
@@ -172,16 +167,72 @@ function toggleOptions(event) {
         jQuery("<input/>", {
             id: 'location',
             type: 'text',
-            name: 'input2'
+            name: 'input2',
+            focus: function() {
+                $(this).data("hasfocus", true);
+            },
+            blur: function() {
+                $(this).data("hasfocus", false);
+            },
+            keydown: function(event) { //This will get the value inside the text box once the user hits enter
+                if (event.which === 13 && $(this).data("hasfocus")) changeParams(this, "location");
+            } 
         }).appendTo("#location-div");
         
         jQuery("<input/>", {
             id: 'range',
             type: 'text',
-            name: 'input3'
+            name: 'input3',
+            focus: function() {
+                $(this).data("hasfocus", true);
+            },
+            blur: function() {
+                $(this).data("hasfocus", false);
+            },
+            keydown: function(event) {
+                if (event.which === 13 && $(this).data("hasfocus")) changeParams(this, "range");
+            }
         }).appendTo("#range-div");
     }
     
     //Now we know that this element exists, so we must do a toggle
     $("#search-options").toggle("slow");
+}
+
+function changeParams(element, type) {
+    var text = $(element).val();
+    if (type === "range") {
+        //We first need to see if this is a valid number
+        range = ~~Number(text); //The '~~' will truncate any fractional pieces
+        if (String(range) !== text || range < 0) {
+            //This means we either have a non-integer value or a negative value, so reset range and alert user
+            range = 2000;
+            alert("Invalid range entered. Please enter a number greater than 0.");
+        }
+        
+        //Since there really is no visual to tell users that this has been updated, let's add it here.
+        //NOTE: Should have a variable that has the last Places search term, as well as a variable saying whether to check it or not
+    }
+    else {
+        geocodeAddress(text);
+    }
+}
+
+function geocodeAddress(address) {
+    geocoder.geocode({'address': address}, function(results, status) {
+        if (status === google.maps.GeocoderStatus.OK) {
+            map.setCenter(results[0].geometry.location);
+            var marker = new google.maps.Marker({
+                map: map,
+                position: results[0].geometry.location
+            });
+            
+            currPos = marker.position; //Ensures that subsequent Places searches are based on this location
+            infoWindow.setPosition(results[0].geometry.location);
+            infoWindow.setContent('Specified Location');
+            currMarkers.push[marker]; //We want to remove this as soon as we do a places search
+        } else {
+            alert('Geocode was not successful for the following reason: ' + status);
+        }
+    });
 }
