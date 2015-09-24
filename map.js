@@ -289,27 +289,26 @@ function changeParams(element, type) {
     }
     else {
         geocodeAddress(text);
+        if (places_active) {
+            getPlaces(current_search);
+        }
     }
 }
 
 //This function brings the map to whatever location the user specified in the Location field
+//BUG: When entering Places search then changing locations, stuff doesn't work
 function geocodeAddress(address) {
     geocoder.geocode({'address': address}, function(results, status) {
         if (status === google.maps.GeocoderStatus.OK) {
-            map.setCenter(results[0].geometry.location);
-            var marker = new google.maps.Marker({
-                map: map,
-                position: results[0].geometry.location
-            });
+            currPos = results[0].geometry.location; //Ensures that subsequent Places searches are based on this location
+            map.setCenter(currPos);
             
-            currPos = marker.position; //Ensures that subsequent Places searches are based on this location
             infoWindow.setPosition(results[0].geometry.location);
             infoWindow.setContent('Specified Location');
             
-            //Before we move, let's clear all the markers from the old location
+            //Before we move, let's clear all the markers from the old location and set our circle here
             clearMap();
             range_circle.setCenter(currPos);
-            currMarkers.push[marker]; //We want to remove this as soon as we do a places search
         } else {
             alert('Geocode was not successful for the following reason: ' + status);
         }
