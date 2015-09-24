@@ -183,7 +183,7 @@ function addMarkersToMap(results, status, pagination) {
     else {
         $("#more-btn").hide();
     }
-    map.fitBounds(bounds); //This will fit all our places on the map at once
+    map.fitBounds(bounds); //This will fit all our places on the map at once; seems to cause an issue when centering map on new loc
 }
 
 //This function actually creates an individual marker and places it on the map.
@@ -289,26 +289,27 @@ function changeParams(element, type) {
     }
     else {
         geocodeAddress(text);
-        if (places_active) {
-            getPlaces(current_search);
-        }
     }
 }
 
 //This function brings the map to whatever location the user specified in the Location field
-//BUG: When entering Places search then changing locations, stuff doesn't work
 function geocodeAddress(address) {
     geocoder.geocode({'address': address}, function(results, status) {
         if (status === google.maps.GeocoderStatus.OK) {
             currPos = results[0].geometry.location; //Ensures that subsequent Places searches are based on this location
-            map.setCenter(currPos);
             
-            infoWindow.setPosition(results[0].geometry.location);
+            infoWindow.setPosition(currPos);
             infoWindow.setContent('Specified Location');
             
             //Before we move, let's clear all the markers from the old location and set our circle here
+            var old_active_val = places_active;
             clearMap();
+            places_active = old_active_val; //Since clearMap sets places_active to false, this will restore old value in case it was true
             range_circle.setCenter(currPos);
+            map.setCenter(currPos);
+            if (places_active) {
+                getPlaces(current_search);
+            }
         } else {
             alert('Geocode was not successful for the following reason: ' + status);
         }
